@@ -2,65 +2,34 @@
 
 ```mermaid
 flowchart TD
+    A[程式啟動] --> B[初始化 Serial & Log]
+    B --> C[讀取 Latest.txt 恢復 Map]
+    C --> D[初始化 Status / StatusTemp]
+    D --> E[初始化 Stack Light (黃燈)]
+    E --> F[進入主迴圈 while 1]
 
-%% ===== 初始化流程 =====
-A0["啟動程式"] --> A1["產生當日 Log 檔案"]
-A1 --> A2["Serial 初始化 (/dev/ttyUSB0)"]
-A2 --> A3["讀取 Latest.txt 還原 Map & Status"]
-A3 --> A4["初始化黃燈狀態"]
-A4 --> LOOP_START["主迴圈開始"]
+    F --> G[檢查 Serial 是否有資料]
+    G -->|有資料| H[讀取 Arduino 20 個 slot 狀態]
+    H --> I[逐個 Slot 比對 Status 與 StatusTemp]
 
-%% ===== 主迴圈 =====
-LOOP_START --> B1["等待 0.25 秒"]
-B1 --> B2["counter++"]
+    I -->|Status[i]='0'| J[Cassette 放入流程]
+    I -->|Status[i]='1'| K[Cassette 拿出流程]
 
-B2 --> B3{"counter >= 600 ?"}
-B3 -- "是" --> B4["寫入 Alive Log: Main Function is still ALIVE"]
-B4 --> B5["counter = 0"]
-B3 -- "否" --> B5
+    J --> L[寫 Log: slot getting in]
+    L --> M[啟動 Timeout 3 秒]
+    M --> N[等待條碼輸入]
+    N -->|Timeout| O[寫入 'N' & Buzzer 2 次]
+    N -->|輸入成功| P[保存 FoupID 到 Map]
+    P --> Q[更新 Log 與 Latest.txt]
 
-B5 --> B6{"Serial 是否有資料？"}
-B6 -- "否" --> LOOP_START
-B6 -- "是" --> C1["讀取 Arduino 20 bytes 狀態字串 (StatusTemp)"]
+    K --> R[寫 Log: slot Taken]
+    R --> S[Map[i]='0']
+    S --> Q
 
-%% ===== 每個 slot 處理 =====
-C1 --> D0["for i in 0..E_Rack_Shelf-1"]
+    Q --> T[更新 Stack Light]
+    T --> F
 
-D0 --> D1{"Status[i] 是否改變？"}
-D1 -- "否" --> D0
-D1 -- "是" --> D2{"Status[i] == '0' ? (Cassette 放入)"}
-
-%% ===== Foup 放入流程 =====
-D2 -- "是" --> IN1["寫入 Log: slot getting in"]
-IN1 --> IN2["啟動 Timeout (3 秒)"]
-IN2 --> IN3["清空鍵盤 buffer"]
-IN3 --> IN4["ser.write(i) 觸發條碼讀取"]
-IN4 --> IN5["等待條碼輸入 raw_input()"]
-
-IN5 --> IN6{"Timeout? (超過 3 秒)"}
-IN6 -- "是" --> T1["呼叫 interrupted()\n寫入 Timeout Log\n蜂鳴器兩聲"]
-T1 --> D0
-IN6 -- "否" --> IN7["條碼成功輸入\nBuzzer, Light"]
-IN7 --> IN8["Map[i] = FoupID"]
-IN8 --> IN9["寫入條碼 Log"]
-IN9 --> IN10["printmap = 1"]
-IN10 --> D0
-
-%% ===== Foup 拿出流程 =====
-D2 -- "否" --> OUT1["寫入 Log: slot taken"]
-OUT1 --> OUT2["Map[i] = '0'"]
-OUT2 --> OUT3["printmap = 1"]
-OUT3 --> D0
-
-%% ===== 更新畫面與檔案 =====
-D0 --> E0{"printmap == 1 ?"}
-E0 -- "否" --> LOOP_START
-E0 -- "是" --> E1["清除畫面"]
-E1 --> E2["將 Map 以 4x5 格列印"]
-E2 --> E3["寫入 Map 至 Log 檔案"]
-E3 --> E4["更新 Latest.txt"]
-E4 --> E5["printmap = 0"]
-E5 --> LOOP_START
+    G -->|無資料| F
 
 
 
