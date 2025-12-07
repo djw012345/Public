@@ -3,27 +3,27 @@
 ```mermaid
 flowchart TD
     start[程式啟動] --> init_serial[初始化 Serial 與 Log]
-    init_serial --> read_latest[讀取 Latest.txt 還原 Map]
-    read_latest --> init_status[初始化 Status / StatusTemp]
-    init_status --> init_light[初始化堆疊燈 (黃燈)]
+    init_serial --> read_latest[讀取 Latest txt 還原 Map]
+    read_latest --> init_status[初始化 Status 和 StatusTemp]
+    init_status --> init_light[初始化堆疊燈 黃燈]
     init_light --> main_loop[進入主迴圈]
 
-    main_loop --> check_serial{Serial 有資料嗎?}
+    main_loop --> check_serial{Serial 有資料嗎}
     check_serial -->|有| read_slot[讀取 Arduino 20 個 Slot 狀態]
     read_slot --> compare_status[比對 Status 與 StatusTemp]
 
-    compare_status -->|Status=0| cassette_in[Cassette 放入流程]
-    compare_status -->|Status=1| cassette_out[Cassette 拿出流程]
+    compare_status -->|Status 等於 0| cassette_in[Cassette 放入流程]
+    compare_status -->|Status 等於 1| cassette_out[Cassette 拿出流程]
 
-    cassette_in --> log_in[寫 Log: slot getting in]
+    cassette_in --> log_in[寫 Log slot getting in]
     log_in --> timeout[啟動 Timeout 3 秒]
     timeout --> wait_input[等待條碼輸入]
-    wait_input -->|Timeout| timeout_action[Timeout 處理: 寫入 'N' 與蜂鳴器]
+    wait_input -->|Timeout| timeout_action[Timeout 處理 寫入 N 與蜂鳴器]
     wait_input -->|輸入成功| save_map[儲存 FoupID 至 Map]
-    save_map --> update_log[更新 Log 與 Latest.txt]
+    save_map --> update_log[更新 Log 與 Latest txt]
 
-    cassette_out --> log_out[寫 Log: slot Taken]
-    log_out --> clear_slot[清空 Map[i]]
+    cassette_out --> log_out[寫 Log slot Taken]
+    log_out --> clear_slot[清空 Map 對應 slot]
     clear_slot --> update_log
 
     update_log --> update_light[更新堆疊燈]
