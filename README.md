@@ -1,6 +1,25 @@
 # Public
 
 
+
+```mermaid
+flowchart TD
+    A[物件放入] --> B[IR SENSOR 感測到物體]
+    B --> C[啟動 Barcode Reader 3 秒]
+    C --> D{是否讀取到 Barcode?}
+
+    D -->|是| E[Web Service 上拋 Barcode 至 Server<br>三色燈閃一下綠光<br>蜂鳴器叫一聲]
+    D -->|否| F[三色燈閃一下紅燈<br>蜂鳴器叫兩聲<br>需再次放入物件]
+    
+    F --> A
+
+
+```
+
+
+
+
+
 ```txt
 /*
   IR Sensor Health Check System
