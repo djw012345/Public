@@ -18,6 +18,7 @@ flowchart TD
 
 
 ```mermaid
+
 flowchart LR
     RPI[樹梅派 (Raspberry Pi)\n主控端\n負責讀取 Arduino 資料、上拋 Web Service] 
     MEGA[Arduino Mega\n讀取 20 組 IR Sensor\n讀取 Barcode Reader 訊號]
@@ -30,8 +31,6 @@ flowchart LR
     IR --> MEGA
     BR --> MEGA
     MEGA --> RPI
-
-
 
 ```
 
