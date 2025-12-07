@@ -2,36 +2,34 @@
 
 ```mermaid
 flowchart TD
-    start[Start: 程式啟動] --> init_serial[Init Serial & Log]
-    init_serial --> read_latest[Read Latest.txt and Restore Map]
-    read_latest --> init_status[Init Status / StatusTemp]
-    init_status --> init_light[Init Stack Light (Yellow)]
-    init_light --> main_loop[Enter Main Loop]
+    start[Start] --> init_serial[Init_Serial_Log]
+    init_serial --> read_latest[Read_Latest]
+    read_latest --> init_status[Init_Status]
+    init_status --> init_light[Init_Stack_Light]
+    init_light --> main_loop[Main_Loop]
 
-    main_loop --> check_serial{Serial Data?}
-    check_serial -->|Yes| read_slot[Read 20 Slot Status from Arduino]
-    read_slot --> compare_status[Compare Status with StatusTemp]
+    main_loop --> check_serial{Serial_Data?}
+    check_serial -->|Yes| read_slot[Read_20_Slots]
+    read_slot --> compare_status[Compare_Status]
 
-    compare_status -->|Status='0'| cassette_in[Cassette Insert]
-    compare_status -->|Status='1'| cassette_out[Cassette Remove]
+    compare_status -->|Status=0| cassette_in[Cassette_Insert]
+    compare_status -->|Status=1| cassette_out[Cassette_Remove]
 
-    cassette_in --> log_in[Log: slot getting in]
-    log_in --> timeout[Start Timeout 3 sec]
-    timeout --> wait_input[Wait for Barcode Input]
-    wait_input -->|Timeout| timeout_action[Write 'N' & Buzzer Twice]
-    wait_input -->|Input OK| save_map[Save FoupID to Map]
-    save_map --> update_log[Update Log & Latest.txt]
+    cassette_in --> log_in[Log_Getting_In]
+    log_in --> timeout[Start_Timeout]
+    timeout --> wait_input[Wait_Barcode]
+    wait_input -->|Timeout| timeout_action[Write_N_Buzzer]
+    wait_input -->|Input_OK| save_map[Save_FoupID_Map]
+    save_map --> update_log[Update_Log_Latest]
 
-    cassette_out --> log_out[Log: slot Taken]
-    log_out --> clear_slot[Map[i]='0']
+    cassette_out --> log_out[Log_Taken]
+    log_out --> clear_slot[Clear_Map]
     clear_slot --> update_log
 
-    update_log --> update_light[Update Stack Light]
+    update_log --> update_light[Update_Stack_Light]
     update_light --> main_loop
 
     check_serial -->|No| main_loop
-
-
 
 
 ```
