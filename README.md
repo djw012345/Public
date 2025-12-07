@@ -20,17 +20,23 @@ flowchart TD
 ```mermaid
 
 flowchart LR
-    RPI[Raspberry Pi 主控<br/>讀取 Arduino 資料<br/>上拋 Web Service]
-    MEGA[Arduino Mega<br/>讀取 20 組 IR Sensor<br/>讀取 Barcode Reader 訊號]
+    subgraph RPI_Block[Raspberry Pi 主控端]
+        RPI[樹莓派<br/>負責資料接收、邏輯判斷、Web Service 上拋]
+    end
 
-    subgraph SENSORS[感測器與裝置]
-        IR[20 個 IR Sensor]
+    subgraph ARD_Block[Arduino Mega 感測器控制端]
+        MEGA[Arduino Mega<br/>負責讀取 20 組 IR Sensor 與 Barcode Reader]
+    end
+
+    subgraph SENSOR_Block[感測器與讀取器]
+        IR[20 組 IR Sensor]
         BR[Barcode Reader]
     end
 
+    %% Connections
     IR --> MEGA
     BR --> MEGA
-    MEGA --> RPI
+    MEGA -- USB / UART --> RPI
 
 
 ```
