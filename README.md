@@ -1,5 +1,79 @@
 # Public
 
+```mermaid
+flowchart TD
+
+%% ===== 程式啟動 =====
+A0([啟動程式]) --> A1[產生當日 Log 檔案]
+A1 --> A2[Serial 初始化 /dev/ttyUSB0]
+A2 --> A3[讀取 Latest.txt]
+A3 --> A4[還原 Map & Status]
+A4 --> A5[初始化黃燈狀態]
+
+A5 --> LOOP_START((主迴圈開始))
+
+%% ===== 主迴圈 =====
+LOOP_START --> B1[等待 0.25 秒]
+B1 --> B2[counter++]
+
+B2 --> B3{counter >= 600?}
+B3 -- Yes --> B4[寫入 Alive Log<br/>Main ALIVE]
+B4 --> B5[重置 counter]
+B3 -- No --> B6[檢查 ser.inWaiting()]
+
+%% ===== 有收到 Arduino 狀態 =====
+B6 --> C0{收到 20 字元狀態?}
+C0 -- No --> LOOP_START
+C0 -- Yes --> C1[讀取 StatusTemp]
+
+C1 --> C2[for i in 0..19]
+
+%% ===== 判斷 Slot 狀態變更 =====
+C2 --> C3{Status[i] 改變?}
+C3 -- No --> C2
+C3 -- Yes --> C4{Status[i] == '0'?}
+
+%% ===== Foup 放入流程 =====
+C4 -- Yes --> IN1[寫入 Log: slot getting in]
+IN1 --> IN2[啟動 3 秒 Timeout]
+IN2 --> IN3[清空鍵盤 buffer]
+IN3 --> IN4[ser.write(i) 觸發條碼讀取]
+IN4 --> IN5[等待條碼輸入 raw_input]
+
+IN5 --> IN6{Timeout?}
+IN6 -- Yes --> T1[呼叫 interrupted()<br/>寫入 Timeout Log<br/>蜂鳴器兩聲]
+T1 --> C2
+
+IN6 -- No --> IN7[條碼成功<br/>Buzzer, Light]
+IN7 --> IN8[Map[i] = FoupID]
+IN8 --> IN9[寫入條碼 Log]
+IN9 --> IN10[printmap = 1]
+IN10 --> C2
+
+%% ===== Foup 拿出流程 =====
+C4 -- No --> OUT1[寫入 Log: slot taken]
+OUT1 --> OUT2[Map[i] = '0']
+OUT2 --> OUT3[printmap = 1]
+OUT3 --> C2
+
+%% ===== 更新畫面和檔案 =====
+C2 --> D0{printmap == 1?}
+D0 -- No --> LOOP_START
+
+D0 -- Yes --> D1[清除畫面]
+D1 --> D2[將 Map 以 4x5 格列印]
+D2 --> D3[寫入 Map 至 Log 檔案]
+D3 --> D4[更新 Latest.txt]
+D4 --> D5[printmap = 0]
+D5 --> LOOP_START
+
+
+
+```
+
+
+
+
 
 
 ```mermaid
