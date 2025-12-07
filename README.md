@@ -1,5 +1,5 @@
 # Public
-```mermaind
+```mermaid
 flowchart TD
     A[Arduino MEGA] --> B[20 個 IR 感測器]
     A --> C[20 個條碼燈]
