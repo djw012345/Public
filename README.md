@@ -1,4 +1,27 @@
 # Public
+```mermaind
+flowchart TD
+    A[Arduino MEGA] --> B[20 個 IR 感測器]
+    A --> C[20 個條碼燈]
+    A --> D[燈塔控制與蜂鳴器]
+    B -->|感測狀態| E[讀取 IR 狀態]
+    E --> F{狀態是否改變?}
+    F -->|是| G[更新 Shelf_Status_temp]
+    G --> H[透過 Serial 回傳 20 格狀態給 RPI]
+    F -->|否| I[保持原狀]
+
+    D -->|指令控制| J[Status1~Status4]
+    J -->|倒數計時控制| K[LED / 蜂鳴器開關]
+    
+    C -->|條碼燈控制| L{RPI 送 Slot 編號}
+    L -->|翻轉 BarcodeTimer| M[條碼燈開 / 關]
+
+    H -->|樹莓派接收| N[RPI]
+    M --> N
+    K --> N
+
+```
+
 
 ```mermaid
 flowchart TD
