@@ -17,6 +17,24 @@ flowchart TD
 ```
 
 
+```mermaid
+flowchart LR
+    RPI[樹梅派 (Raspberry Pi)\n主控端\n負責讀取 Arduino 資料、上拋 Web Service] 
+    MEGA[Arduino Mega\n讀取 20 組 IR Sensor\n讀取 Barcode Reader 訊號]
+
+    subgraph Sensors[感測器與讀取裝置]
+        IR[20 個 IR Sensor]
+        BR[Barcode Reader]
+    end
+
+    IR --> MEGA
+    BR --> MEGA
+    MEGA --> RPI
+
+
+
+```
+
 
 
 
