@@ -2,34 +2,34 @@
 
 ```mermaid
 flowchart TD
-    A[程式啟動] --> B[初始化 Serial & Log]
-    B --> C[讀取 Latest.txt 恢復 Map]
-    C --> D[初始化 Status / StatusTemp]
-    D --> E[初始化 Stack Light (黃燈)]
-    E --> F[進入主迴圈 while 1]
+    start[Start: 程式啟動] --> init_serial[Init Serial & Log]
+    init_serial --> read_latest[Read Latest.txt and Restore Map]
+    read_latest --> init_status[Init Status / StatusTemp]
+    init_status --> init_light[Init Stack Light (Yellow)]
+    init_light --> main_loop[Enter Main Loop]
 
-    F --> G[檢查 Serial 是否有資料]
-    G -->|有資料| H[讀取 Arduino 20 個 slot 狀態]
-    H --> I[逐個 Slot 比對 Status 與 StatusTemp]
+    main_loop --> check_serial{Serial Data?}
+    check_serial -->|Yes| read_slot[Read 20 Slot Status from Arduino]
+    read_slot --> compare_status[Compare Status with StatusTemp]
 
-    I -->|Status[i]='0'| J[Cassette 放入流程]
-    I -->|Status[i]='1'| K[Cassette 拿出流程]
+    compare_status -->|Status='0'| cassette_in[Cassette Insert]
+    compare_status -->|Status='1'| cassette_out[Cassette Remove]
 
-    J --> L[寫 Log: slot getting in]
-    L --> M[啟動 Timeout 3 秒]
-    M --> N[等待條碼輸入]
-    N -->|Timeout| O[寫入 'N' & Buzzer 2 次]
-    N -->|輸入成功| P[保存 FoupID 到 Map]
-    P --> Q[更新 Log 與 Latest.txt]
+    cassette_in --> log_in[Log: slot getting in]
+    log_in --> timeout[Start Timeout 3 sec]
+    timeout --> wait_input[Wait for Barcode Input]
+    wait_input -->|Timeout| timeout_action[Write 'N' & Buzzer Twice]
+    wait_input -->|Input OK| save_map[Save FoupID to Map]
+    save_map --> update_log[Update Log & Latest.txt]
 
-    K --> R[寫 Log: slot Taken]
-    R --> S[Map[i]='0']
-    S --> Q
+    cassette_out --> log_out[Log: slot Taken]
+    log_out --> clear_slot[Map[i]='0']
+    clear_slot --> update_log
 
-    Q --> T[更新 Stack Light]
-    T --> F
+    update_log --> update_light[Update Stack Light]
+    update_light --> main_loop
 
-    G -->|無資料| F
+    check_serial -->|No| main_loop
 
 
 
