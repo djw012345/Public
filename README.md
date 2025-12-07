@@ -77,6 +77,9 @@ flowchart TD
 ```
 
 
+- 硬體
+- 補寫三色燈
+
 ```mermaid
 
 flowchart LR
